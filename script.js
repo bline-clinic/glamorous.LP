@@ -113,16 +113,20 @@
       `お問い合わせ内容: ${raw.get("message") || ""}`,
     ];
 
-    const data = new FormData();
-    data.set("access_key", accessKey);
-    data.set("subject", `【予約・お問い合わせ】B-LINE CLINIC ${clinic}`);
-    data.set("from_name", "B-LINE CLINIC");
-    data.set("email", raw.get("email") || "");
-    data.set("message", lines.join("\n"));
-    data.set("botcheck", "");
+    const payload = {
+      access_key: accessKey,
+      subject: `【予約・お問い合わせ】B-LINE CLINIC ${clinic}`,
+      from_name: "B-LINE CLINIC",
+      email: raw.get("email") || "",
+      message: lines.join("\n"),
+    };
 
     try {
-      const response = await fetch("https://api.web3forms.com/submit", { method: "POST", body: data });
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify(payload),
+      });
       const json = await response.json();
       if (!response.ok || !json.success) throw new Error(json.message || "送信に失敗しました。");
       window.location.href = config.thanksUrl || "thanks/";
