@@ -6,9 +6,9 @@ window.LP_CONFIG = {
   ctaUrl: "#reservation",
   thanksUrl: "thanks/",
   clinicAccessKeys: {
-    // 通知先: reserve@b-lineclinic.jp
-    "池袋院": "8f0445f6-c529-4d43-ab9b-e1022d2b838c",
-    // 通知先: reserve2@b-lineclinic.jp
-    "大阪院": "72700d6b-99c6-49b2-98a9-a80afbd8c738"
+    // 通知先: marketing_beauty@grill.co.jp（Gmailで院ごとに転送）
+    "池袋院": "c3a7c05e-84d3-4fa3-b8ed-d8277f1ff309",
+    // 通知先: marketing_beauty@grill.co.jp（Gmailで院ごとに転送）
+    "大阪院": "c3a7c05e-84d3-4fa3-b8ed-d8277f1ff309"
   }
 };

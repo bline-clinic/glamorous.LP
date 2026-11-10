@@ -75,11 +75,11 @@
     event.preventDefault();
     if (sending) return;
     dateFields.forEach((input) => { input.required = true; });
-    ["time_1", "time_2", "clinic_list"].forEach((name) => { form.elements[name].required = true; });
+    ["第1希望時間", "第2希望時間", "ご予約院"].forEach((name) => { form.elements[name].required = true; });
     if (!form.reportValidity()) return;
 
     // 通知先はWeb3Forms側の登録先。選択院に対応するキーだけを使います。
-    const clinic = form.elements.clinic_list.value;
+    const clinic = form.elements["ご予約院"].value;
     const routes = config.clinicAccessKeys || {};
     const accessKey = Object.hasOwn(routes, clinic) ? routes[clinic]?.trim() : "";
     if (!accessKey || /^BLINE_.*ACCESS_KEY$/.test(accessKey)) {
@@ -96,10 +96,11 @@
 
     const data = new FormData(form);
     data.set("access_key", accessKey);
+    data.set("subject", `【予約・お問い合わせ】B-LINE CLINIC ${clinic}`);
     // 「どこで知りましたか」は複数選択のため、1項目にまとめて送ります。
-    const knew = data.getAll("knew");
-    data.delete("knew");
-    if (knew.length) data.append("knew", knew.join("、"));
+    const knew = data.getAll("どこで知りましたか");
+    data.delete("どこで知りましたか");
+    if (knew.length) data.append("どこで知りましたか", knew.join("、"));
 
     try {
       const response = await fetch("https://api.web3forms.com/submit", { method: "POST", body: data });
