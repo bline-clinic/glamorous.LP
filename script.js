@@ -75,7 +75,7 @@
     event.preventDefault();
     if (sending) return;
     dateFields.forEach((input) => { input.required = true; });
-    ["time_1", "time_2", "clinic"].forEach((name) => { form.elements[name].required = true; });
+    ["time_1", "time_2", "time_3", "clinic"].forEach((name) => { form.elements[name].required = true; });
     if (!form.reportValidity()) return;
 
     // 通知先はWeb3Forms側の登録先。選択院に対応するキーだけを使います。
@@ -107,6 +107,7 @@
       `電話番号: ${raw.get("tel") || ""}`,
       `第1希望日: ${raw.get("day_1") || ""} ${raw.get("time_1") || ""}`,
       `第2希望日: ${raw.get("day_2") || ""} ${raw.get("time_2") || ""}`,
+      `第3希望日: ${raw.get("day_3") || ""} ${raw.get("time_3") || ""}`,
       `ご連絡希望時間帯: ${raw.get("contact_time") || ""}`,
       `どこで知りましたか: ${sources.length ? sources.join("、") : ""}`,
       `症例モニター: ${raw.get("monitor") || ""}`,
