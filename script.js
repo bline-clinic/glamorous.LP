@@ -75,11 +75,11 @@
     event.preventDefault();
     if (sending) return;
     dateFields.forEach((input) => { input.required = true; });
-    ["第1希望時間", "第2希望時間", "ご予約院"].forEach((name) => { form.elements[name].required = true; });
+    ["time_1", "time_2", "clinic"].forEach((name) => { form.elements[name].required = true; });
     if (!form.reportValidity()) return;
 
     // 通知先はWeb3Forms側の登録先。選択院に対応するキーだけを使います。
-    const clinic = form.elements["ご予約院"].value;
+    const clinic = form.elements["clinic"].value;
     const routes = config.clinicAccessKeys || {};
     const accessKey = Object.hasOwn(routes, clinic) ? routes[clinic]?.trim() : "";
     if (!accessKey || /^BLINE_.*ACCESS_KEY$/.test(accessKey)) {
@@ -94,13 +94,32 @@
     submitButton.textContent = "送信中...";
     status.textContent = "";
 
-    const data = new FormData(form);
+    const raw = new FormData(form);
+    const sources = raw.getAll("source");
+
+    // フィールド名の文字化けを防ぐため、メール本文を日本語ラベル付きの1テキストにまとめます。
+    const lines = [
+      `ご予約院: ${raw.get("clinic") || ""}`,
+      `ご来院: ${raw.get("visit_type") || ""}`,
+      `お名前（カタカナ）: ${raw.get("name_kana") || ""}`,
+      `年齢: ${raw.get("age") || ""}歳`,
+      `メールアドレス: ${raw.get("email") || ""}`,
+      `電話番号: ${raw.get("tel") || ""}`,
+      `第1希望日: ${raw.get("day_1") || ""} ${raw.get("time_1") || ""}`,
+      `第2希望日: ${raw.get("day_2") || ""} ${raw.get("time_2") || ""}`,
+      `ご連絡希望時間帯: ${raw.get("contact_time") || ""}`,
+      `どこで知りましたか: ${sources.length ? sources.join("、") : ""}`,
+      `症例モニター: ${raw.get("monitor") || ""}`,
+      `お問い合わせ内容: ${raw.get("message") || ""}`,
+    ];
+
+    const data = new FormData();
     data.set("access_key", accessKey);
     data.set("subject", `【予約・お問い合わせ】B-LINE CLINIC ${clinic}`);
-    // 「どこで知りましたか」は複数選択のため、1項目にまとめて送ります。
-    const knew = data.getAll("どこで知りましたか");
-    data.delete("どこで知りましたか");
-    if (knew.length) data.append("どこで知りましたか", knew.join("、"));
+    data.set("from_name", "B-LINE CLINIC");
+    data.set("email", raw.get("email") || "");
+    data.set("message", lines.join("\n"));
+    data.set("botcheck", "");
 
     try {
       const response = await fetch("https://api.web3forms.com/submit", { method: "POST", body: data });
